@@ -15,13 +15,10 @@ xs = x0;
 dim = size(xs,1);
 H = eye(dim,dim);
 f0 = f(x0);
-g0 = [f0.jac{1}; f0.jac{2}];
+g0 = g(x0);
 
 fs = f(xs);
 gs = g(xs)';
-% jacFs = [fs.jac{1}; fs.jac{2}];
-% gs = fs;
-% gs.val = jacFs;
 
 %% convergence parameters
 eps = 1.e-4; 
@@ -38,22 +35,12 @@ for i=1:maxIter
             [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));            
             g1 = g(x1)';
             %%TODO: compute gradient with ADI
-            
-%             x1 = xs + s*d;
-%             f1 = f(x1);
-%             g1 = g(x1);
-%             jacF1 = [f1.jac{1}; f1.jac{2}];
-%             g1 = f1;
-%             g1.val = jacF1;           
          
         case 2,
             s = 1; %% full step  %%TODO: implement polynomial
             x1 = xs + s*d;
             f1 = f(x1);
             g1 = g(x1);
-%             jacF1 = [f1.jac{1}; f1.jac{2}];
-%             g1 = f1;
-%             g1.val = jacF1;    
            
     end
     

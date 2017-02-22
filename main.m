@@ -9,7 +9,9 @@ addpath(genpath('testFunctions'));
 
 %% 
 % intial point
-x0=[-1; 2];
+% x0=[-1; 2]; %%
+
+x0 = [2; 2]
 
 % Ghraphic: plot the function to be minimized
 xmin = -2;
@@ -26,8 +28,10 @@ axis('square');
 hold;
 
 %% Creating an automatic diff object
-[x,y] = initVariablesADI(x0(1),x0(2));
-xk = [x;y]; %% initial point with ADI
+% [x,y] = initVariablesADI(x0(1),x0(2));
+% xk = [x;y]; %% initial point with ADI
+
+xk = x0;
 
 % f = fban(xk);
 % g = gban(xk);
