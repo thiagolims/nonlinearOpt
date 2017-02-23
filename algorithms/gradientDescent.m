@@ -60,6 +60,8 @@ for i=1:maxIter
                 end
             end
             
+            lambda = 0.5*lambda;
+            
         case 2, % Steepest Descent
             d = -gs;
     end
@@ -78,6 +80,7 @@ for i=1:maxIter
             g1 = g(x1);
            
     end
+    
     
      % Convergence test
      gradientNorm = (norm(double(g1))/norm(double(g0)));
