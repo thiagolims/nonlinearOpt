@@ -19,7 +19,6 @@ function [ xs, fs, gs] = gradientDescent(f, g, h, x0, optType, lsType, varargin)
 %% Initialization
 xs = x0;
 dim = size(xs,1);
-H = eye(dim,dim);
 f0 = f(x0);
 g0 = g(x0);
 h0 = h(x0);
@@ -30,6 +29,9 @@ hs = h(xs);
 
 % DFP parameters
 A = eye(dim,dim);     
+
+% BFGS parameters
+H = eye(dim,dim);
 
 % Parameter for Marquardt's Modification to the Newton Method
 lambda = 1000;
@@ -123,7 +125,31 @@ for i=1:maxIter
               B = (sk*sk')/(sk'*y);
               C = -(z*z')/(y'*z);
            
-              A = A + B + C;       
+              A = A + B + C;     
+              
+        case 4,  % BFGS (Quasi-Newton)
+            d = -(H\g); % direction
+            
+            switch(lsType)
+                case 1,
+                    [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    h1 = h(x1);
+                    %%TODO: compute gradient with ADI
+                    
+                case 2,
+                    s = 1; %% full step  %%TODO: implement polynomial
+                    x1 = xs + s*d;
+                    f1 = f(x1);
+                    g1 = g(x1);
+            end
+            
+            y = g1-gs;
+            sk = s*d;
+          
+            D = (y*y')/(y'*sk);
+            E = (g*g')/(g'*d);              
+            H = H + D + E;
              
     end
     
