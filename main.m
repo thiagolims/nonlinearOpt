@@ -1,5 +1,5 @@
 % -------------------------------------------------------------------
-% Non-Linear Optimization Script
+% Non-Linear Optimization
 % Author: Thiago Lima Silva (thiagolims@gmail.com)
 % -------------------------------------------------------------------
 
@@ -49,8 +49,9 @@ hbanana = @(xk) hban(xk);
 fsquare = @(xk) squareX(xk);
 
 %% Line Search Type
-ls = 1; % Armijo = 1, Polynomial = 2
+optType = 2; % Newton = 1, SteepestDescent = 2
+lsType = 1; % Armijo = 1, Polynomial = 2
 
 %% Invoking optimization algorithm
-[xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, ls);
+[xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, optType, lsType);
 

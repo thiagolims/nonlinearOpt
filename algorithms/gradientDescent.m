@@ -3,7 +3,7 @@
 % Newton, Quasi-Newton, Steepest Descent
 % Author: Thiago Lima Silva (thiagolims@gmail.com)
 % -------------------------------------------------------------------
-function [ xs, fs, gs] = gradientDescent(f, g, h, x0, ls)
+function [ xs, fs, gs] = gradientDescent(f, g, h, x0, optType, lsType, varargin)
 %gradientDescent steepest gradient descent algorithm
 % input:
 %   - f: pointer to the function to be minimized
@@ -33,13 +33,18 @@ eps = 1.e-4;
 tol = 1.e-6;
 maxIter = 500;
 
-%%TODO: implement the steepest descent algorithm
 if (norm(g0) < eps) return; end
 
 for i=1:maxIter
-%     d = -gs;
-    d = -(hs\gs); % Newton
-    switch(ls)
+    switch(optType)
+        case 1, % Newton 
+            d = -(hs\gs);
+            
+        case 2, % Steepest Descent
+            d = -gs;
+    end
+
+    switch(lsType)
         case 1,
             [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));            
             g1 = g(x1)';
@@ -83,7 +88,8 @@ for i=1:maxIter
     xs = x1;
     gs = g1;
     fs = f1;
-    hs = h1;
+    hs = h1;    
+    
 end
 
 end
