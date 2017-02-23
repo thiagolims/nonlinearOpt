@@ -28,6 +28,9 @@ fs = f(xs);
 gs = g(xs)';
 hs = h(xs);
 
+% Parameter for Marquardt's Modification to the Newton Method
+lambda = 1000;
+
 %% convergence parameters
 eps = 1.e-4; 
 tol = 1.e-6;
@@ -37,8 +40,25 @@ if (norm(g0) < eps) return; end
 
 for i=1:maxIter
     switch(optType)
-        case 1, % Newton 
-            d = -(hs\gs);
+        case 1, % Newton
+            % Parameters for Marquardt's Modification to the Newton Method
+            beta = 5.0e-1*norm(hs)^-1;
+            teta = 1e-6;
+            
+            if rcond(H)
+                d = -(hs\gs);  % Newton's method direction
+            else
+                d = -(hs + lambda.*eye(dim,dim))\gs;   % Marquardt Modification to Newton's Method
+            end
+            
+            while (gs'*d >= 0) ||  (gs'*d > -teta*norm(gs)*norm(d)) || (norm(d) < beta*norm(gs))
+                lambda = 2*lambda;
+                if rcond(hs + lambda.*eye(dim,dim)) > 1.0e-6
+                    d = -(hs + lambda.*eye(dim,dim))\gs;
+                else
+                    d = -gs;
+                end
+            end
             
         case 2, % Steepest Descent
             d = -gs;

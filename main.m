@@ -37,10 +37,6 @@ hold all;
 
 xk = x0;
 
-% f = fban(xk);
-% g = gban(xk);
-
-
 %% Anonymous functions 
 fbanana = @(xk) fban(xk);
 gbanana = @(xk) gban(xk);
@@ -49,7 +45,7 @@ hbanana = @(xk) hban(xk);
 fsquare = @(xk) squareX(xk);
 
 %% Line Search Type
-optType = 2; % Newton = 1, SteepestDescent = 2
+optType = 1; % Newton = 1, SteepestDescent = 2
 lsType = 1; % Armijo = 1, Polynomial = 2
 
 %% Invoking optimization algorithm
