@@ -1,3 +1,9 @@
+% -------------------------------------------------------------------
+% METODO: LSArmijo
+% Armijo Criterion for Line Search
+% Author: Thiago Lima Silva (thiagolims@gmail.com)
+% -------------------------------------------------------------------
+
 function [ s, xs, fxs] = lsArmijo(f, x, d, g)
 %LSARMIJO Armijo criteria for line search
 

@@ -1,3 +1,8 @@
+% -------------------------------------------------------------------
+% Non-Linear Optimization Script
+% Author: Thiago Lima Silva (thiagolims@gmail.com)
+% -------------------------------------------------------------------
+
 % Make sure the workspace is clean before we start
 clc
 clear

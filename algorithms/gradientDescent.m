@@ -1,3 +1,8 @@
+% -------------------------------------------------------------------
+% METODO: gradient-based nonlinear optimization
+% Newton, Quasi-Newton, Steepest Descent
+% Author: Thiago Lima Silva (thiagolims@gmail.com)
+% -------------------------------------------------------------------
 function [ xs, fs, gs] = gradientDescent(f, g, h, x0, ls)
 %gradientDescent steepest gradient descent algorithm
 % input:
