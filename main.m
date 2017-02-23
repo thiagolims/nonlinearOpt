@@ -9,9 +9,8 @@ addpath(genpath('testFunctions'));
 
 %% 
 % intial point
-% x0=[-1; 2]; %%
+x0=[-1; 2]; %%
 
-x0 = [2; 2]
 
 % Ghraphic: plot the function to be minimized
 xmin = -2;
@@ -25,7 +24,7 @@ dy = .05;
 banana=10*z.^4 - 20*(z.^2).*y + 10*y.^2 + z.^2 -2*z + 5;
 contour(z,y,banana,30);
 axis('square');
-hold;
+hold all;
 
 %% Creating an automatic diff object
 % [x,y] = initVariablesADI(x0(1),x0(2));
@@ -40,6 +39,7 @@ xk = x0;
 %% Anonymous functions 
 fbanana = @(xk) fban(xk);
 gbanana = @(xk) gban(xk);
+hbanana = @(xk) hban(xk);
 
 fsquare = @(xk) squareX(xk);
 
@@ -47,5 +47,5 @@ fsquare = @(xk) squareX(xk);
 ls = 1; % Armijo = 1, Polynomial = 2
 
 %% Invoking optimization algorithm
-[xs, fs, gs] = gradientDescent(fbanana, gbanana, xk, ls);
+[xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, ls);
 
