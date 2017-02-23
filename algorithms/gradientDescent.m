@@ -51,15 +51,12 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
-                    g1 = g(x1)';
-                    h1 = h(x1);
+                    g1 = g(x1)';                    
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                    s = 1; %% full step  %%TODO: implement polynomial
-                    x1 = xs + s*d;
-                    f1 = f(x1);
-                    g1 = g(x1);
+                    [s,x1, f1] = lsPolynomial(f, xs, d);                     
+                    g1 = g(x1)';                    
             end
             
         case 2, % Newton
@@ -90,10 +87,9 @@ for i=1:maxIter
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                    s = 1; %% full step  %%TODO: implement polynomial
-                    x1 = xs + s*d;
-                    f1 = f(x1);
-                    g1 = g(x1);
+                    [s,x1, f1] = lsPolynomial(f, xs, d);                     
+                    g1 = g(x1)';  
+                    h1 = h(x1);
             end
             
             %% parameters update            
@@ -106,14 +102,11 @@ for i=1:maxIter
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
                     g1 = g(x1)';
-                    h1 = h(x1);
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                    s = 1; %% full step  %%TODO: implement polynomial
-                    x1 = xs + s*d;
-                    f1 = f(x1);
-                    g1 = g(x1);
+                   [s,x1, f1] = lsPolynomial(f, xs, d);                     
+                    g1 = g(x1)';                      
              end
             
              %% parameters update
@@ -133,15 +126,12 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
-                    g1 = g(x1)';
-                    h1 = h(x1);
+                    g1 = g(x1)';                   
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                    s = 1; %% full step  %%TODO: implement polynomial
-                    x1 = xs + s*d;
-                    f1 = f(x1);
-                    g1 = g(x1);
+                    [s,x1, f1] = lsPolynomial(f, xs, d);                     
+                    g1 = g(x1)';                      
             end
             
             y = g1-gs;
@@ -185,7 +175,9 @@ for i=1:maxIter
     xs = x1;
     gs = g1;
     fs = f1;
-    hs = h1;    
+    if optType == 2 % Newton
+        hs = h1;    
+    end
     
 end
 

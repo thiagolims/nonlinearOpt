@@ -46,7 +46,7 @@ fsquare = @(xk) squareX(xk);
 
 %% Line Search Type
 optType = 3; % SteepestDescent = 1, Newton = 2, DFP = 3, BFGS = 4
-lsType = 1; % Armijo = 1, Polynomial = 2
+lsType = 2; % Armijo = 1, Polynomial = 2
 
 %% Invoking optimization algorithm
 [xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, optType, lsType);
