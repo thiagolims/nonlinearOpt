@@ -28,6 +28,9 @@ fs = f(xs);
 gs = g(xs)';
 hs = h(xs);
 
+% DFP parameters
+A = eye(dim,dim);     
+
 % Parameter for Marquardt's Modification to the Newton Method
 lambda = 1000;
 
@@ -40,7 +43,24 @@ if (norm(g0) < eps) return; end
 
 for i=1:maxIter
     switch(optType)
-        case 1, % Newton
+        case 1, % Steepest Descent
+            d = -gs;
+            
+            switch(lsType)
+                case 1,
+                    [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    h1 = h(x1);
+                    %%TODO: compute gradient with ADI
+                    
+                case 2,
+                    s = 1; %% full step  %%TODO: implement polynomial
+                    x1 = xs + s*d;
+                    f1 = f(x1);
+                    g1 = g(x1);
+            end
+            
+        case 2, % Newton
             % Parameters for Marquardt's Modification to the Newton Method
             beta = 5.0e-1*norm(hs)^-1;
             teta = 1e-6;
@@ -60,30 +80,58 @@ for i=1:maxIter
                 end
             end
             
+            switch(lsType)
+                case 1,
+                    [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    h1 = h(x1);
+                    %%TODO: compute gradient with ADI
+                    
+                case 2,
+                    s = 1; %% full step  %%TODO: implement polynomial
+                    x1 = xs + s*d;
+                    f1 = f(x1);
+                    g1 = g(x1);
+            end
+            
+            %% parameters update            
             lambda = 0.5*lambda;
             
-        case 2, % Steepest Descent
-            d = -gs;
-    end
-
-    switch(lsType)
-        case 1,
-            [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));            
-            g1 = g(x1)';
-            h1 = h(x1);
-            %%TODO: compute gradient with ADI
-         
-        case 2,
-            s = 1; %% full step  %%TODO: implement polynomial
-            x1 = xs + s*d;
-            f1 = f(x1);
-            g1 = g(x1);
+        case 3,  % DFP (Quasi-Newton)
+            d = -A*gs; %direction
+            
+             switch(lsType)
+                case 1,
+                    [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    h1 = h(x1);
+                    %%TODO: compute gradient with ADI
+                    
+                case 2,
+                    s = 1; %% full step  %%TODO: implement polynomial
+                    x1 = xs + s*d;
+                    f1 = f(x1);
+                    g1 = g(x1);
+             end
+            
+             %% parameters update
+             
+              y = g1-gs;
+              z = A*y;
+              sk = s*d;            
+            
+              B = (sk*sk')/(sk'*y);
+              C = -(z*z')/(y'*z);
            
+              A = A + B + C;       
+             
     end
+    
     
     
      % Convergence test
-     gradientNorm = (norm(double(g1))/norm(double(g0)));
+     gradientNorm = (norm(double(g1))/norm(double(g0)));    
+     
      
      if (gradientNorm < eps)
          disp(sprintf('\n Iteration number %d', i));

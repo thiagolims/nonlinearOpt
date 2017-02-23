@@ -45,7 +45,7 @@ hbanana = @(xk) hban(xk);
 fsquare = @(xk) squareX(xk);
 
 %% Line Search Type
-optType = 1; % Newton = 1, SteepestDescent = 2
+optType = 3; % SteepestDescent = 1, Newton = 2, DFP = 3
 lsType = 1; % Armijo = 1, Polynomial = 2
 
 %% Invoking optimization algorithm
