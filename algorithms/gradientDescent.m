@@ -121,7 +121,7 @@ for i=1:maxIter
               A = A + B + C;     
               
         case 4,  % BFGS (Quasi-Newton)
-            d = -(H\g); % direction
+            d = -(H\gs); % direction
             
             switch(lsType)
                 case 1,
@@ -138,7 +138,7 @@ for i=1:maxIter
             sk = s*d;
           
             D = (y*y')/(y'*sk);
-            E = (g*g')/(g'*d);              
+            E = (gs*gs')/(gs'*d);              
             H = H + D + E;
              
     end
