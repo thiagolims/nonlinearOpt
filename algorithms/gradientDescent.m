@@ -28,7 +28,7 @@ gs = g(xs)';
 hs = h(xs);
 
 % DFP parameters
-A = eye(dim,dim);     
+A = eye(dim,dim);
 
 % BFGS parameters
 H = eye(dim,dim);
@@ -37,7 +37,7 @@ H = eye(dim,dim);
 lambda = 1000;
 
 %% convergence parameters
-eps = 1.e-4; 
+eps = 1.e-4;
 tol = 1.e-6;
 maxIter = 500;
 
@@ -51,12 +51,17 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
-                    g1 = g(x1)';                    
+                    g1 = g(x1)';
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                    [s,x1, f1] = lsPolynomial(f, xs, d);                     
-                    g1 = g(x1)';                    
+                    [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    
+                    
+                case 3,
+                    [s,x1, f1] = lsPolynomial(f, xs, d);
+                    g1 = g(x1)';
             end
             
         case 2, % Newton
@@ -87,78 +92,91 @@ for i=1:maxIter
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                    [s,x1, f1] = lsPolynomial(f, xs, d);                     
-                    g1 = g(x1)';  
-                    h1 = h(x1);
+                    [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    
+                    
+                case 3,
+                    [s,x1, f1] = lsPolynomial(f, xs, d);
+                    g1 = g(x1)';
             end
             
-            %% parameters update            
+            %% parameters update
             lambda = 0.5*lambda;
             
         case 3,  % DFP (Quasi-Newton)
             d = -A*gs; %direction
             
-             switch(lsType)
+            switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
                     g1 = g(x1)';
                     %%TODO: compute gradient with ADI
                     
                 case 2,
-                   [s,x1, f1] = lsPolynomial(f, xs, d);                     
-                    g1 = g(x1)';                      
-             end
+                    [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    
+                    
+                case 3,
+                    [s,x1, f1] = lsPolynomial(f, xs, d);
+                    g1 = g(x1)';
+            end
             
-             %% parameters update
-             
-              y = g1-gs;
-              z = A*y;
-              sk = s*d;            
+            %% parameters update
             
-              B = (sk*sk')/(sk'*y);
-              C = -(z*z')/(y'*z);
-           
-              A = A + B + C;     
-              
+            y = g1-gs;
+            z = A*y;
+            sk = s*d;
+            
+            B = (sk*sk')/(sk'*y);
+            C = -(z*z')/(y'*z);
+            
+            A = A + B + C;
+            
         case 4,  % BFGS (Quasi-Newton)
             d = -(H\gs); % direction
             
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
-                    g1 = g(x1)';                   
-                    %%TODO: compute gradient with ADI
+                    g1 = g(x1)';
                     
                 case 2,
-                    [s,x1, f1] = lsPolynomial(f, xs, d);                     
-                    g1 = g(x1)';                      
+                    [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    
+                    
+                case 3,
+                    [s,x1, f1] = lsPolynomial(f, xs, d);
+                    g1 = g(x1)';
             end
             
             y = g1-gs;
             sk = s*d;
-          
+            
             D = (y*y')/(y'*sk);
-            E = (gs*gs')/(gs'*d);              
+            E = (gs*gs')/(gs'*d);
             H = H + D + E;
-             
+            
     end
     
     
     
-     % Convergence test
-     gradientNorm = (norm(double(g1))/norm(double(g0)));    
-     
-     
-     if (gradientNorm < eps)
-         disp(sprintf('\n Iteration number %d', i));
-         disp(sprintf('  f = %g  Step = %d', fs, s));
-         disp(sprintf('  X = ')); disp(sprintf(' %d ',xs));
-         disp(sprintf('  g/g0 = ')); disp(sprintf(' %d ',gradientNorm));   
-
-     	disp('Convergence OK!');
-        return 
-     end
-     
+    % Convergence test
+    gradientNorm = (norm(double(g1))/norm(double(g0)));
+    
+    
+    if (gradientNorm < eps)
+        disp(sprintf('\n Iteration number %d', i));
+        disp(sprintf('  f = %g  Step = %d', fs, s));
+        disp(sprintf('  X = ')); disp(sprintf(' %d ',xs));
+        disp(sprintf('  g/g0 = ')); disp(sprintf(' %d ',gradientNorm));
+        
+        disp('Convergence OK!');
+        return
+    end
+    
     % Plotting and printing
     xsD = double(xs);
     x1D = double(x1);
@@ -168,15 +186,15 @@ for i=1:maxIter
     plot(dx,dy,'-ro');
     
     disp(sprintf('\n Iteration number %d', i));
- 	disp(sprintf('  f = %g  Step = %d', f1, s));
- 	disp(sprintf('  X = ')); disp(sprintf(' %d ',x1));
- 	disp(sprintf('  g/g0 = ')); disp(sprintf(' %d ',gradientNorm));   
+    disp(sprintf('  f = %g  Step = %d', f1, s));
+    disp(sprintf('  X = ')); disp(sprintf(' %d ',x1));
+    disp(sprintf('  g/g0 = ')); disp(sprintf(' %d ',gradientNorm));
     
     xs = x1;
     gs = g1;
     fs = f1;
     if optType == 2 % Newton
-        hs = h1;    
+        hs = h1;
     end
     
 end
