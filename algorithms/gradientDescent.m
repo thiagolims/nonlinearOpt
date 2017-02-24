@@ -153,14 +153,44 @@ for i=1:maxIter
             end
             
             y = g1-gs;
-            sk = s*d;
+            sk = s*d; %x_{k+1} - x_k
             
             D = (y*y')/(y'*sk);
-            E = (gs*gs')/(gs'*d);
-            H = H + D + E;
+            E = (gs*gs')/(gs'*d); %% Arora book (page 327)
+%           E = -(H*sk*sk'*H)/(sk'*H*sk); %% Nocedal book (page 140, eq 6.19)
+            H = H + D + E;            
             
+        case 5,   %% SR1 (Quasi-Newton)
+             d = -H*gs;  % direction
+             
+             switch(lsType)
+                 %%TODO: try SR1 update if possible. Otherwise, switch to
+                 %%BFGS update in case a descent direction is not found.
+                  case 1,
+                    [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    
+                case 2,
+                    [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    g1 = g(x1)';
+                    
+                    
+                case 3,
+                    [s,x1, f1] = lsPolynomial(f, xs, d);
+                    g1 = g(x1)';
+             end
+             
+             y = g1-gs; % df/dx_{k+1} - df/dx_k
+             sk = s*d;  % x_{k+1} - x_k            
+             
+             
+             % if denR1 is small, keep the same hessian approximation H
+             denR1 = ((sk - H*y)'*y);
+             r = 1e-08;
+             if (sign(denR1)*denR1) >= (r*norm(y)*norm(sk - H*y)) 
+                H = H + (sk - H*y)*(sk - H*y)'/denR1; % unique rank-one updating formula satisfying the secant equation
+             end                          
     end
-    
     
     
     % Convergence test
