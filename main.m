@@ -44,9 +44,11 @@ hbanana = @(xk) hban(xk);
 
 fsquare = @(xk) squareX(xk);
 
-%% Line Search Type
+%% Search direction method
 optType = 4; % SteepestDescent = 1, Newton = 2, DFP = 3, BFGS = 4
-lsType = 2; % Armijo = 1, Polynomial = 2
+
+%% Line search type
+lsType = 2; % Armijo = 1, ArmijoGoldstein=2, Polynomial = 3
 
 %% Invoking optimization algorithm
 [xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, optType, lsType);
