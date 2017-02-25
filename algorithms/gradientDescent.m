@@ -94,11 +94,13 @@ for i=1:maxIter
                 case 2,
                     [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
                     g1 = g(x1)';
+                    h1 = h(x1);
                     
                     
                 case 3,
                     [s,x1, f1] = lsPolynomial(f, xs, d);
                     g1 = g(x1)';
+                    h1 = h(x1);
             end
             
             %% parameters update
