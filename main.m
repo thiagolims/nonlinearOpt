@@ -51,5 +51,9 @@ optType = 5; % SteepestDescent = 1, Newton = 2, DFP = 3, BFGS = 4, SR1 = 5
 lsType = 3; % Armijo = 1, ArmijoGoldstein=2, Polynomial = 3
 
 %% Invoking optimization algorithm
+tic 
+
 [xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, optType, lsType);
+
+toc
 
