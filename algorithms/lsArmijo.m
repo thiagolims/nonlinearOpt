@@ -22,6 +22,7 @@ if gfd > 0
     fxs = f0;
     s = 0;
     warning('No descent direction.')
+    return;
 end
     
 while (fxs >  (f0 + s*c1*g0'*d))       %% Armijo condition
