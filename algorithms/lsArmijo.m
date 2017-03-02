@@ -17,9 +17,11 @@ xs = x + s*d;             % x(s)
 fxs = f(xs);              % f(xs)
 
 gfd = g0'*d;              
-if gfd > 0
-    %% TODO: with SR1, return a flag indicating if a descent direction is possible 
-    error('No descent direction')
+if gfd > 0    
+    xs = x;
+    fxs = f0;
+    s = 0;
+    warning('No descent direction.')
 end
     
 while (fxs >  (f0 + s*c1*g0'*d))       %% Armijo condition

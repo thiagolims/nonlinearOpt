@@ -45,15 +45,15 @@ hbanana = @(xk) hban(xk);
 fsquare = @(xk) squareX(xk);
 
 %% Search direction method
-optType = 5; % SteepestDescent = 1, Newton = 2, DFP = 3, BFGS = 4, SR1 = 5 
+optType = 4; % SteepestDescent = 1, Newton = 2, DFP = 3, BFGS = 4, SR1 = 5 
 
 %% Line search type
-lsType = 3; % Armijo = 1, ArmijoGoldstein=2, Polynomial = 3
+lsType = 1; % Armijo = 1, ArmijoGoldstein=2, Polynomial = 3
 
 %% Invoking optimization algorithm
 tic 
-
-[xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, optType, lsType);
-
+% for i=1:100
+    [xs, fs, gs] = gradientDescent(fbanana, gbanana, hbanana, xk, optType, lsType);
+% end
 toc
 

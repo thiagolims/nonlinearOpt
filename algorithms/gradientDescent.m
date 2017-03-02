@@ -28,6 +28,9 @@ fs = f(xs);
 gs = g(xs)';
 hs = h(xs);
 
+d = -g0;
+s = 1;
+
 % BFGS and DFP parameters
 H = eye(dim,dim);
 
@@ -49,6 +52,9 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    if s==0
+                        error('zero step size determined.')
+                    end
                     g1 = g(x1)';
                     %%TODO: compute gradient with ADI
                     
@@ -85,6 +91,9 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    if s==0
+                        error('zero step size determined.')
+                    end
                     g1 = g(x1)';
                     h1 = h(x1);
                     %%TODO: compute gradient with ADI
@@ -110,6 +119,9 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    if s==0
+                        error('zero step size determined.')
+                    end
                     g1 = g(x1)';
                     %%TODO: compute gradient with ADI
                     
@@ -122,9 +134,9 @@ for i=1:maxIter
                     [s,x1, f1] = lsPolynomial(f, xs, d);
                     g1 = g(x1)';
             end
-            %% DFP Updating Formula            
-            y = g1-gs;          
-            sk = s*d; % x_{k+1} - x_{k}               
+            %% DFP Updating Formula
+            y = g1-gs;
+            sk = s*d; % x_{k+1} - x_{k}
             
             H = H - ((H*y)*(y'*H))/(y'*H*y) + (sk*sk')/(y'*sk);  %%  Nocedal book (page 139, eq 6.15)
             
@@ -134,6 +146,9 @@ for i=1:maxIter
             switch(lsType)
                 case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    if s==0
+                        error('zero step size determined.')
+                    end
                     g1 = g(x1)';
                     
                 case 2,
@@ -145,20 +160,37 @@ for i=1:maxIter
                     [s,x1, f1] = lsPolynomial(f, xs, d);
                     g1 = g(x1)';
             end
-            %% DFP Updating Formula     
+            %% BFGS Updating Formula
             y = g1-gs;
-            sk = s*d; %x_{k+1} - x_k                   
-            pk = 1/(y'*sk);
+            sk = s*d; %x_{k+1} - x_k
             
-            H = (eye(dim) - pk*sk*y')*H*(eye(dim) - pk*y*sk') + pk*(sk*sk'); %% Nocedal Book (Page 140, eq. 6.17)            
+            H = bfgsUpdate(H, y, sk);            
         case 5,   %% SR1 (Quasi-Newton)
-             d = -H*gs;  % direction
-             
-             switch(lsType)
-                 %%TODO: try SR1 update if possible. Otherwise, switch to
-                 %%BFGS update in case a descent direction is not found.
-                  case 1,
+            dp = d;     % store previous direction
+            sp = s;     % store previous step length
+            
+            d = -H*gs;  % next direction
+            switch(lsType)
+                %%Try SR1 update and switch to BFGS update in case a descent direction is not found.
+                case 1,
                     [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    if s==0
+                        %% Step back to previous iterate before SR1 update
+                        xp = xs - sp*dp;
+                        gp = g(xp)';
+                        H = Hp;
+                        
+                        y = gs - gp;
+                        sk = sp*dp;
+                                                
+                        
+                        %% BFGS Update
+                        H = bfgsUpdate(H, y, sk);
+                        
+                        d = -H*gs;  % new direction base on a rank-2 Hessian approximation
+                        
+                        [s, x1, f1] = lsArmijo(f, double(xs), double(d), double(gs));
+                    end
                     g1 = g(x1)';
                     
                 case 2,
@@ -169,18 +201,20 @@ for i=1:maxIter
                 case 3,
                     [s,x1, f1] = lsPolynomial(f, xs, d);
                     g1 = g(x1)';
-             end
-             
-             y = g1-gs; % df/dx_{k+1} - df/dx_k
-             sk = s*d;  % x_{k+1} - x_k            
-             
-             
-             % if denR1 is small, keep the same hessian approximation H
-             denR1 = ((sk - H*y)'*y);
-             r = 1e-08;
-             if (sign(denR1)*denR1) >= (r*norm(y)*norm(sk - H*y)) 
+            end
+            
+            y = g1-gs; % df/dx_{k+1} - df/dx_k
+            sk = s*d;  % x_{k+1} - x_k
+            
+            
+            % if denR1 is small, keep the same hessian approximation H
+            denR1 = ((sk - H*y)'*y);
+            r = 1e-08;
+            if (sign(denR1)*denR1) >= (r*norm(y)*norm(sk - H*y))
+                Hp = H;  %% store previous Hessian approximation
                 H = H + (sk - H*y)*(sk - H*y)'/denR1; % unique rank-one updating formula satisfying the secant equation
-             end                          
+            end
+            
     end
     
     
