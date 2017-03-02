@@ -195,6 +195,22 @@ for i=1:maxIter
                     
                 case 2,
                     [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    if s==0
+                        %% Step back to previous iterate before SR1 update
+                        xp = xs - sp*dp;
+                        gp = g(xp)';
+                        H = Hp;
+                        
+                        y = gs - gp;
+                        sk = sp*dp;
+                                                
+                        
+                        %% BFGS Update
+                        H = bfgsUpdate(H, y, sk);
+                        
+                        d = -H*gs;  % new direction base on a rank-2 Hessian approximation
+                        [s, x1, f1] = lsArmijoGoldstein(f, double(xs), double(d), double(gs));
+                    end
                     g1 = g(x1)';
                     
                     
