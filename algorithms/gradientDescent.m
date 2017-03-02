@@ -10,7 +10,8 @@ function [ xs, fs, gs] = gradientDescent(f, g, h, x0, optType, lsType, varargin)
 %   - g: pointer to the function gradient
 %   - h: point to the function hessian
 %   - x0: initial point
-%   - ls: line search type (1 - Armijo, 2 - Polynomial)
+%   - optType: direction search method (1 - Steepest Descent, 2 - Newton, 3 - DFP, 4 - BFGS, 5 - SR1/BFGS )
+%   - lsType: line search type (1 - Armijo, 2 - ArmijoGoldstein, 3 - Polynomial)
 % output:
 %   - xs: local optimal solution
 %   - fs: optimal function value f(xs)
@@ -27,10 +28,7 @@ fs = f(xs);
 gs = g(xs)';
 hs = h(xs);
 
-% DFP parameters
-A = eye(dim,dim);
-
-% BFGS parameters
+% BFGS and DFP parameters
 H = eye(dim,dim);
 
 % Parameter for Marquardt's Modification to the Newton Method
@@ -107,7 +105,7 @@ for i=1:maxIter
             lambda = 0.5*lambda;
             
         case 3,  % DFP (Quasi-Newton)
-            d = -A*gs; %direction
+            d = -H*gs; %direction
             
             switch(lsType)
                 case 1,
@@ -125,16 +123,10 @@ for i=1:maxIter
                     g1 = g(x1)';
             end
             
-            %% parameters update
-            
-            y = g1-gs;
-            z = A*y;
-            sk = s*d;
-            
-            B = (sk*sk')/(sk'*y);
-            C = -(z*z')/(y'*z);
-            
-            A = A + B + C;
+            %% DFP Updating Formula
+            y = g1-gs;          
+            sk = s*d; % x_{k+1} - x_{k}            
+            H = H - ((H*y)*(y'*H))/(y'*H*y) + (sk*sk')/(y'*sk);  %%  Nocedal book (page 139, eq 6.15)
             
         case 4,  % BFGS (Quasi-Newton)
             d = -(H\gs); % direction
