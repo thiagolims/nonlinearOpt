@@ -122,14 +122,14 @@ for i=1:maxIter
                     [s,x1, f1] = lsPolynomial(f, xs, d);
                     g1 = g(x1)';
             end
-            
-            %% DFP Updating Formula
+            %% DFP Updating Formula            
             y = g1-gs;          
-            sk = s*d; % x_{k+1} - x_{k}            
+            sk = s*d; % x_{k+1} - x_{k}               
+            
             H = H - ((H*y)*(y'*H))/(y'*H*y) + (sk*sk')/(y'*sk);  %%  Nocedal book (page 139, eq 6.15)
             
         case 4,  % BFGS (Quasi-Newton)
-            d = -(H\gs); % direction
+            d = -H*gs; % direction
             
             switch(lsType)
                 case 1,
@@ -145,15 +145,12 @@ for i=1:maxIter
                     [s,x1, f1] = lsPolynomial(f, xs, d);
                     g1 = g(x1)';
             end
-            
+            %% DFP Updating Formula     
             y = g1-gs;
-            sk = s*d; %x_{k+1} - x_k
+            sk = s*d; %x_{k+1} - x_k                   
+            pk = 1/(y'*sk);
             
-            D = (y*y')/(y'*sk);
-            E = (gs*gs')/(gs'*d); %% Arora book (page 327)
-%           E = -(H*sk*sk'*H)/(sk'*H*sk); %% Nocedal book (page 140, eq 6.19)
-            H = H + D + E;            
-            
+            H = (eye(dim) - pk*sk*y')*H*(eye(dim) - pk*y*sk') + pk*(sk*sk'); %% Nocedal Book (Page 140, eq. 6.17)            
         case 5,   %% SR1 (Quasi-Newton)
              d = -H*gs;  % direction
              
