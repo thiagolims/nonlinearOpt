@@ -20,9 +20,13 @@ s  = 1;                   % initial step length
 xs = x + s*d;             % x(s)
 fxs = f(xs);              % f(xs)
 
-gfd = g0'*d;              
-if gfd > 0
-    error('No descent direction')
+gfd = g0'*d;    
+if gfd > 0    
+    xs = x;
+    fxs = f0;
+    s = 0;
+    warning('No descent direction.')
+    return;
 end
     
 while (fxs <= (f0 + s*rho1*g0'*d)  ) 
